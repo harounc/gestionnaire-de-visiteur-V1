@@ -5,6 +5,24 @@ from datetime import datetime
 MENUACTIF = 0
 LISTE_VISITEURS = []
 
+# TODO 
+"""
+Définir un chemin vers le fichier de sauvegarde 
+
+Formuler un format d'enregistrement des visiteurs et leurs visites dans un fichier
+
+Faire des tests à part où: 
+- tu inséres manuellement 2 visiteurs dans le fichier avec 3 visites chacun
+- et où tu arrives à charger ces 2 visiteurs et leurs visites dans un fichier python à part.
+
+Applique la logique employée à notre programme
+
+
+# Logique 1: tu peux charger les visiteurs du fichiers automatiquement au lancement du programme et à la fin du programme, les écrire dans le fichier.
+# Logique 2: pour chaque opération (enregistrer, terminer, vites en cours), tu vas consulter le fichier 
+# Logique n: tant que ça marche, no problem
+"""
+
 # Définition du menu 0
 def menuPrincipal():
   global MENUACTIF
