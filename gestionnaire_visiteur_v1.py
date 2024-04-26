@@ -36,8 +36,6 @@ def lister():
                 Visite = data[1]
                 print(f"La liste des visiteurs : {Visiteur} {Visite}")
 
-
-
 MENUACTIF = 0
 LISTE_VISITEURS = []
 
@@ -102,7 +100,6 @@ def menuEnregistrerVisite():
       visiteur["Visites"][id_visite] = visite
 
       LISTE_VISITEURS.append(visiteur)
-  enregistrer()
 
   MENUACTIF = 0
 
@@ -120,7 +117,7 @@ def menuTerminerVisite():
       while Terminer != 'q':
         Terminer = input("taper 'q' pour terminer: ")
       visiteur["Visites"][ID_visite]["Heure sortie"] = datetime.now()
-  lister()
+
   MENUACTIF = 0
 
 # Définition du menu 3 : voir les visites en cours
@@ -129,11 +126,11 @@ def menuVisiteEnCours():
 
   for visiteur in LISTE_VISITEURS:
     for visite in visiteur["Visites"].values():
-      print(visite)
-      print(visiteur)
+      #print(visite)
+      #print(visiteur)
       if visite["Heure sortie"] == None:
         #print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {visite["id"]} {visite["Heure entrée"]}')
-        print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {visiteur["Visites"]} {visite["Heure entrée"]}')
+        print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {list(visiteur["Visites"].keys())} {visite["Heure entrée"]}')
 
   MENUACTIF = 0
 
