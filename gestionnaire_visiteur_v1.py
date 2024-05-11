@@ -34,6 +34,39 @@ from datetime import datetime
 Gestionnaire de mots de passe
 """
 
+
+"""
+# Élabore la nouvelle structure de tes données pouvant prendre en compte cette nouveauté
+VISITE = {
+    "Motif Visite" : str,
+    "Heure entrée" : str,
+    "Heure sortie" : str
+}
+
+VISITEUR = {
+    "Nom et Prenoms" : str,
+    "Type de pièce" : str,
+    "Num pièce" : int,
+    "Visites" : dict[int,VISITE]
+}
+
+LISTE_VISITEURS = []
+
+################# Exemple ################################"
+VISITEUR = {
+    "Nom et Prenoms" : "HAROUNA",
+    "Type de pièce" : "CNI",
+    "Num pièce" : 000012233,
+    "Visites" : {
+        1:{
+          "Motif Visite" : sign contrat,
+          "Heure entrée" : 10H,
+          "Heure sortie" : 11H
+        }
+    }
+}
+"""
+
 cheminFichier = "donnees_visiteurs.txt"
 sprtrI = " ___ "
 sprtrFV = " @_V-V_@ "
