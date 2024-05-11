@@ -1,3 +1,31 @@
+# TODO 
+"""
+1-Définir un chemin vers le fichier de sauvegarde :
+    cheminFichier = "donnees_visiteurs.txt"
+    separateurInterne = "-/_/_/_/-"
+    separateurFin = "___@___"
+  
+2-Formuler un format d'enregistrement des visiteurs et leurs visites dans un fichier :
+    Nom et Prenom 1-/_/_/_/-id visite1-/_/_/_/-Motif de la visite1-/_/_/_/-Heure Entrée1-/_/_/_/-Heure Sortie1___@___id visite2-/_/_/_/-Motif de la visite2-/_/_/_/-Heure Entrée2-/_/_/_/-Heure Sortie2___@___id visite3-/_/_/_/-Motif de la visite3-/_/_/_/-Heure Entrée3-/_/_/_/-Heure Sortie3
+    Nom et Prenom 2-/_/_/_/-id visite1-/_/_/_/-Motif de la visite1-/_/_/_/-Heure Entrée1-/_/_/_/-Heure Sortie1___@___id visite2-/_/_/_/-Motif de la visite2-/_/_/_/-Heure Entrée2-/_/_/_/-Heure Sortie2___@___id visite3-/_/_/_/-Motif de la visite3-/_/_/_/-Heure Entrée3-/_/_/_/-Heure Sortie3
+
+3-Faire des tests à part où: 
+- tu inséres manuellement 2 visiteurs dans le fichier avec 3 visites chacun
+
+    Exemple :
+          {Visiteur 1}{separateurInterne}{Visite 1}{separateurFin}{Visite 2}{separateurFin}{Visite 3}
+          {Visiteur 2}{separateurInterne}{Visite 1}{separateurFin}{Visite 2}{separateurFin}{Visite 3}
+
+- et où tu arrives à charger ces 2 visiteurs et leurs visites dans un fichier python à part.
+
+4-Applique la logique employée à notre programme
+# Logique 1: tu peux charger les visiteurs du fichiers automatiquement au lancement du programme et à la fin du programme, les écrire dans le fichier.
+# Logique 2: pour chaque opération (enregistrer, terminer, vites en cours), tu vas consulter le fichier 
+# Logique n: tant que ça marche, no problem
+
+"""
+
+
 # Implémente les multi-visites
 
 from datetime import datetime
@@ -7,37 +35,70 @@ Gestionnaire de mots de passe
 """
 
 cheminFichier = "donnees_visiteurs.txt"
-separateur = "-@@@_/_/_/_@@@-"
+sprtrI = " ___ "
+sprtrFV = " @_V-V_@ "
+sprtrVisiteVisiteur = " @_Vtr-Vte_@ "
 
-def enregistrer():
-    # Enregistrer un visiteur
-    visite = {}
-    visiteur = {
-            "Visites":{}
-            }
-    Visiteur = visiteur["Nom et Prenoms"]
-    Visite = visite["Motif Visite"]
+def stocker(visiteurs: list):
+    with open(cheminFichier, "w") as fp:  
+        for visiteur in visiteurs:
+            chaine = ""
+            chaine += f"{visiteur["Nom et Prenoms"]}{sprtrI}{visiteur["Type de pièce"]}{sprtrI}{visiteur["Num pièce"]}{sprtrVisiteVisiteur}"
+            for visite in visiteur["Visites"].values():
+                #print(visite,visiteur["Visites"], type(visite))
+                chaine += f"{visite["Motif Visite"]}{sprtrI}{visite["Heure entrée"]}{sprtrI}{visite["Heure sortie"]}{sprtrFV}"
+            chaine += f"\n" 
+            fp.write(chaine)
 
-    with open(cheminFichier, "a") as fp:
-        fp.write(f"{Visiteur}{separateur}{Visite}\n")
-
+# Lister les visiteurs
 def lister():
-    # Lister les visiteurs
+    visiteurs = []
     with open(cheminFichier, "r") as fp:
         contenu = fp.read()
-        # print("Contenu: ", type(contenu), contenu)
         listeVisiteurs = contenu.split("\n")
-        # print("chaineCassee : ", listeUtilisateurs)
-
         for user in listeVisiteurs:
             if user != '':
-                data = user.split(separateur)
-                Visiteur = data[0]
-                Visite = data[1]
-                print(f"La liste des visiteurs : {Visiteur} {Visite}")
+                visiteur = {}
 
+                data = user.split(sprtrVisiteVisiteur)
+                info_visiteur = data[0]
+                infos = info_visiteur.split(sprtrI)
+                nomprenom_visiteur = infos[0]
+                typepiece_visiteur = infos[1]
+                numeropiece_visiteur = infos[2]
+
+                visiteur["Nom et Prenoms"] = nomprenom_visiteur
+                visiteur["Type de pièce"] = typepiece_visiteur
+                visiteur["Num pièce"] = numeropiece_visiteur
+
+                visiteur["Visites"] = {}
+
+                #print(f"Informations du visiteur : {nomprenom_visiteur} {typepiece_visiteur} {numeropiece_visiteur}")
+                info_visite = data[1]
+                liste_visite = info_visite.split(sprtrFV)
+                id_visite = 0
+                for visite in liste_visite:
+                    if visite != '':
+                        details_visite = visite.split(sprtrI)
+                        motif_visite = details_visite[0]
+                        heure_entree = details_visite[1]
+                        heure_sortie = details_visite[2]
+                        #print(f"\t\t{motif_visite} {heure_entree} {heure_sortie}")
+                        # visiteur["Visites"]["Motif Visite"] = motif_visite
+                        # visiteur["Visites"]["Heure entrée"] = heure_entree
+                        # visiteur["Visites"]["Heure sortie"] = heure_sortie
+                        visite_actuelle = {}
+                        visite_actuelle["Motif Visite"] = motif_visite
+                        visite_actuelle["Heure entrée"] = heure_entree
+                        visite_actuelle["Heure sortie"] = heure_sortie
+                        visiteur["Visites"][id_visite] = visite_actuelle
+                        id_visite += 1
+        visiteurs.append(visiteur)
+    return visiteurs
+   
+# PROGRAMME PRINCIPAL
 MENUACTIF = 0
-LISTE_VISITEURS = []
+LISTE_VISITEURS = lister()
 
 # Définition du menu 0
 def menuPrincipal():
@@ -49,6 +110,7 @@ def menuPrincipal():
     2. Terminer une visite \n
     3. Voir les visites en cours \n
     4. Voir les visites terminées \n
+    q. Pour quitter le programme \n
     """
   )
   choix = input("selectioneé une option: ")
@@ -63,6 +125,9 @@ def menuPrincipal():
 
   elif choix =="4":
     MENUACTIF = 4
+  
+  else :
+     MENUACTIF = "q"
 
 # Définition du menu 1
 # supposont que le nom et prenoms sont uniques
@@ -125,12 +190,13 @@ def menuVisiteEnCours():
   global MENUACTIF
 
   for visiteur in LISTE_VISITEURS:
-    for visite in visiteur["Visites"].values():
+    for id_visite in visiteur["Visites"].keys():
+      visite = visiteur["Visites"][id_visite]
       #print(visite)
       #print(visiteur)
       if visite["Heure sortie"] == None:
         #print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {visite["id"]} {visite["Heure entrée"]}')
-        print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {list(visiteur["Visites"].keys())} {visite["Heure entrée"]}')
+        print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {id_visite} {visite["Heure entrée"]}')
 
   MENUACTIF = 0
 
@@ -139,12 +205,12 @@ def menuVisiteTerminees():
   global MENUACTIF
 
   for visiteur in LISTE_VISITEURS:
-    for visite in visiteur["Visites"].values():
-      print(visite)
-      print(visiteur)
+    #print(visiteur)
+    for id_visite in visiteur["Visites"].keys():
+      visite = visiteur["Visites"][id_visite]
       if visite["Heure sortie"] != None:
         #print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {visite["id"]} {visite["Heure entrée"]}')
-        print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {visiteur["Visites"]} {visite["Heure entrée"]}')
+        print(f'{visiteur["Nom et Prenoms"]} {visite["Motif Visite"]} {id_visite} {visite["Heure entrée"]}')
 
   MENUACTIF = 0
 
@@ -166,7 +232,8 @@ while True:
     menuVisiteTerminees()
 
   # Terminer le programme
-  if MENUACTIF == -1:
+  if MENUACTIF == "q":
     break
 
+stocker(LISTE_VISITEURS)
 print("\n\n\t Fin du programme !")
