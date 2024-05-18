@@ -1,28 +1,7 @@
-# TODO 
 """
-1-Définir un chemin vers le fichier de sauvegarde :
-    cheminFichier = "donnees_visiteurs.txt"
-    separateurInterne = "-/_/_/_/-"
-    separateurFin = "___@___"
-  
-2-Formuler un format d'enregistrement des visiteurs et leurs visites dans un fichier :
-    Nom et Prenom 1-/_/_/_/-id visite1-/_/_/_/-Motif de la visite1-/_/_/_/-Heure Entrée1-/_/_/_/-Heure Sortie1___@___id visite2-/_/_/_/-Motif de la visite2-/_/_/_/-Heure Entrée2-/_/_/_/-Heure Sortie2___@___id visite3-/_/_/_/-Motif de la visite3-/_/_/_/-Heure Entrée3-/_/_/_/-Heure Sortie3
-    Nom et Prenom 2-/_/_/_/-id visite1-/_/_/_/-Motif de la visite1-/_/_/_/-Heure Entrée1-/_/_/_/-Heure Sortie1___@___id visite2-/_/_/_/-Motif de la visite2-/_/_/_/-Heure Entrée2-/_/_/_/-Heure Sortie2___@___id visite3-/_/_/_/-Motif de la visite3-/_/_/_/-Heure Entrée3-/_/_/_/-Heure Sortie3
+Application de la logique 1
 
-3-Faire des tests à part où: 
-- tu inséres manuellement 2 visiteurs dans le fichier avec 3 visites chacun
-
-    Exemple :
-          {Visiteur 1}{separateurInterne}{Visite 1}{separateurFin}{Visite 2}{separateurFin}{Visite 3}
-          {Visiteur 2}{separateurInterne}{Visite 1}{separateurFin}{Visite 2}{separateurFin}{Visite 3}
-
-- et où tu arrives à charger ces 2 visiteurs et leurs visites dans un fichier python à part.
-
-4-Applique la logique employée à notre programme
 # Logique 1: tu peux charger les visiteurs du fichiers automatiquement au lancement du programme et à la fin du programme, les écrire dans le fichier.
-# Logique 2: pour chaque opération (enregistrer, terminer, vites en cours), tu vas consulter le fichier 
-# Logique n: tant que ça marche, no problem
-
 """
 
 
@@ -75,12 +54,12 @@ sprtrVisiteVisiteur = " @_Vtr-Vte_@ "
 
 def stocker(visiteurs: list):
     with open(cheminFichier, "w") as fp:  
-        for visiteur in visiteurs:
+        for visiteur in classes.Visiteur.BDD:
             chaine = ""
-            chaine += f"{visiteur["Nom et Prenoms"]}{sprtrI}{visiteur["Type de pièce"]}{sprtrI}{visiteur["Num pièce"]}{sprtrVisiteVisiteur}"
-            for visite in visiteur["Visites"].values():
+            chaine += f"{visiteur.nom_complet}{sprtrI}{visiteur.type_piece}{sprtrI}{visiteur.num_piece}{sprtrVisiteVisiteur}"
+            for visite in visiteur.mes_visites:
                 #print(visite,visiteur["Visites"], type(visite))
-                chaine += f"{visite["Motif Visite"]}{sprtrI}{visite["Heure entrée"]}{sprtrI}{visite["Heure sortie"]}{sprtrFV}"
+                chaine += f"{visite.motif}{sprtrI}{visite.heure_entree}{sprtrI}{visite.heure_fin}{sprtrFV}"
             chaine += f"\n" 
             fp.write(chaine)
 
@@ -114,6 +93,7 @@ def lister():
                 for visite in liste_visite:
                     if visite != '':
                         details_visite = visite.split(sprtrI)
+                        print("details_visite ", details_visite)
                         motif_visite = details_visite[0]
                         heure_entree = details_visite[1]
                         heure_sortie = details_visite[2]
@@ -126,9 +106,27 @@ def lister():
         visiteurs.append(visiteur)
     return visiteurs
    
+def injecter_donnees(liste_visiteurs: list) -> None:
+   for visiteur in liste_visiteurs:
+      nom_prenoms = visiteur["Nom et Prenoms"]
+      type_piece = visiteur["Type de pièce"]
+      num_piece = visiteur["Num pièce"]
+
+      nom, prenoms = nom_prenoms.split(" ")
+      objet_visiteur = classes.Visiteur(nom, prenoms, type_piece, num_piece)
+
+      dict_visites = visiteur["Visites"]
+      if len(dict_visites) != 0 :
+        for visite in dict_visites.values():
+          motif = visite["Motif Visite"]
+          objet_visiteur.assignerVisite(motif)         
+
 # PROGRAMME PRINCIPAL
 MENUACTIF = 0
 LISTE_VISITEURS = []
+
+# Création de chaque visiteur et visite dans leur version avec classe.
+injecter_donnees(lister())
 
 # Définition du menu 0
 def menuPrincipal():
