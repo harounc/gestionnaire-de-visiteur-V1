@@ -27,11 +27,15 @@ Opération sur les visites
 - liste les visites (en cours & terminées)
 
 """
-import sqlite3
+# import sqlite3
 
-DB_NAME = "gest_visit.sqlite3"
+import psycopg2
+
+# DB_NAME = "gest_visit.sqlite3"
+DB_NAME = "postgres://postgres.xwesgqtwpadnpimpsfac:RltBq7wRgLVE54ET@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
 # se connecter à la base de donnéés
-conn = sqlite3.connect(DB_NAME)
+# conn = sqlite3.connect(DB_NAME)
+conn = psycopg2.connect(DB_NAME)
 
 # créer un curseur pour communiquer avec la base de donnée
 curseur = conn.cursor()
@@ -40,7 +44,7 @@ curseur = conn.cursor()
 
 curseur.execute("""
     CREATE TABLE IF NOT EXISTS Visiteurs (
-        id_visiteur INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_visiteur SERIAL PRIMARY KEY,
         nom_visiteur TEXT,
         prenoms_visiteur TEXT,
         type_piece TEXT,
@@ -50,22 +54,23 @@ curseur.execute("""
 
 curseur.execute("""
     CREATE TABLE IF NOT EXISTS Visites (
-        id_visite INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_visite SERIAL PRIMARY KEY,
         motif_visite TEXT,
         heure_entree TEXT,
         heure_fin TEXT,
         id_visiteur INTEGER,
-        FOREIGN KEY (id_visiteur) REFERENCES Visiteurs(id_visiteur)
+        FOREIGN KEY (id_visiteur) REFERENCES Visiteurs(id_visiteur) 
     )
 """)
 
 class Visite:
   # BDD: list[TypeVisite] = []
 
-  def __init__(self, motif: str, visiteur: TypeVisiteur, id: Optional[int] = None, heure_entree: Optional[str] = None):
+  def __init__(self, motif: str, visiteur: TypeVisiteur, id: Optional[int] = None, heure_entree: Optional[str] = None, heure_fin: Optional[str] = None):
     self.motif = motif
     self.heure_entree = heure_entree or datetime.now()
-    self.heure_fin = None
+   # self.heure_fin = None
+    self.heure_fin = heure_fin
 
     self.visiteur = visiteur
     self.id = int(id) if type(id) == str else id
@@ -99,6 +104,7 @@ class Visite:
     requeteUpdate = f"UPDATE Visites set heure_fin = '{heure_fin}' WHERE id_visite = {id_visite} "
     curseur.execute(requeteUpdate)
     conn.commit()
+   
     
   @classmethod
   def listerVisitesEncours(cls) -> list[TypeVisite]:
@@ -109,14 +115,20 @@ class Visite:
     listeVisitesEncours: list[TypeVisite] = []
 
     requeteSQL = "SELECT * FROM Visites WHERE heure_fin IS NULL"
-    listeVisites = curseur.execute(requeteSQL).fetchall()
+    # listeVisites = curseur.execute(requeteSQL).fetchall()
+    curseur.execute(requeteSQL)
+    listeVisites = curseur.fetchall()
+
     if listeVisites:
        for db_visite in listeVisites:
           id_visiteur = db_visite[4]
         
           # On récupère ensuite les informations du visiteur associé pour construire un objet Visteur
           requeteVisteur = f"SELECT * FROM Visiteurs WHERE id_visiteur = {id_visiteur}"
-          resultatVisiteur = curseur.execute(requeteVisteur).fetchone()
+          # resultatVisiteur = curseur.execute(requeteVisteur).fetchone()
+          curseur.execute(requeteVisteur)
+          resultatVisiteur = curseur.fetchone()
+
           nom_visiteur = resultatVisiteur[1]
           prenoms_visiteur = resultatVisiteur[2]
           typepiece_visiteur = resultatVisiteur[3]
@@ -129,7 +141,7 @@ class Visite:
           id_visite = db_visite[0]
           motif_visite = db_visite[1]
           heure_entree = db_visite[2]
-          heure_sortie = db_visite[3]
+          heure_fin = db_visite[3]
           objet_visite = Visite(motif_visite, objet_visiteur, id = id_visite, heure_entree = heure_entree)
           listeVisitesEncours.append(objet_visite)
 
@@ -144,7 +156,10 @@ class Visite:
     listeVisitesEncours: list[TypeVisite] = []
 
     requeteSQL = "SELECT * FROM Visites WHERE heure_fin IS NULL AND id_visiteur = {id_visiteur}"
-    listeVisites = curseur.execute(requeteSQL).fetchall()
+    # listeVisites = curseur.execute(requeteSQL).fetchall()
+    curseur.execute(requeteSQL)
+    listeVisites = curseur.fetchall()
+
     if listeVisites:
        for db_visite in listeVisites:
           id_visiteur = db_visite[4]
@@ -164,7 +179,7 @@ class Visite:
           id_visite = db_visite[0]
           motif_visite = db_visite[1]
           heure_entree = db_visite[2]
-          heure_sortie = db_visite[3]
+          heure_fin = db_visite[3]
           objet_visite = Visite(motif_visite, objet_visiteur, id = id_visite, heure_entree = heure_entree)
           listeVisitesEncours.append(objet_visite)
 
@@ -179,14 +194,20 @@ class Visite:
     listeVisitesTerminees: list[TypeVisite] = []
 
     requeteSQL = "SELECT * FROM Visites WHERE heure_fin IS NOT NULL"
-    listeVisites = curseur.execute(requeteSQL).fetchall()
+    # listeVisites = curseur.execute(requeteSQL).fetchall()
+    curseur.execute(requeteSQL)
+    listeVisites = curseur.fetchall()
+
     if listeVisites:
        for db_visite in listeVisites:
           id_visiteur = db_visite[4]
         
           # On récupère ensuite les informations du visiteur associé pour construire un objet Visteur
           requeteVisteur = f"SELECT * FROM Visiteurs WHERE id_visiteur = {id_visiteur}"
-          resultatVisiteur = curseur.execute(requeteVisteur).fetchone()
+          # resultatVisiteur = curseur.execute(requeteVisteur).fetchone()
+          curseur.execute(requeteVisteur)
+          resultatVisiteur = curseur.fetchone()
+
           nom_visiteur = resultatVisiteur[1]
           prenoms_visiteur = resultatVisiteur[2]
           typepiece_visiteur = resultatVisiteur[3]
@@ -199,8 +220,8 @@ class Visite:
           id_visite = db_visite[0]
           motif_visite = db_visite[1]
           heure_entree = db_visite[2]
-          heure_sortie = db_visite[3]
-          objet_visite = Visite(motif_visite, objet_visiteur, id = id_visite, heure_entree = heure_entree)
+          heure_fin = db_visite[3]
+          objet_visite = Visite(motif_visite, objet_visiteur, id = id_visite, heure_entree = heure_entree, heure_fin = heure_fin)
           listeVisitesTerminees.append(objet_visite)
 
     return listeVisitesTerminees
@@ -248,10 +269,11 @@ class Visiteur:
       visite = Visite(motif, self)
       requeteVisiteur = f"insert into Visiteurs \
         (nom_visiteur, prenoms_visiteur, type_piece, numero_piece) \
-          VALUES ('{self.nom}', '{self.prenoms}', '{self.type_piece}', '{self.num_piece}') ;\
+          VALUES ('{self.nom}', '{self.prenoms}', '{self.type_piece}', '{self.num_piece}') \
+          RETURNING id_visiteur; \
       "
-      resVisiteur = curseur.execute(requeteVisiteur)
-      id_visiteur_cree = resVisiteur.lastrowid
+      curseur.execute(requeteVisiteur)
+      id_visiteur_cree = curseur.fetchone()[0]
 
       requeteSQL = f"insert into Visites (motif_visite, heure_entree, heure_fin, id_visiteur) VALUES ('{motif}', '{heure_entree}', NULL, {id_visiteur_cree}) ;"
       curseur.execute(requeteSQL)
@@ -267,7 +289,10 @@ class Visiteur:
   def chercherVisiteur(cls, nom: str, prenoms: str) -> Optional[list[TypeVisiteur]]:
     requeteSQL = f"SELECT * from Visiteurs WHERE nom_visiteur = '{nom}' AND prenoms_visiteur = '{prenoms}' ;"
 
-    resultat = curseur.execute(requeteSQL).fetchone()
+    # resultat = curseur.execute(requeteSQL).fetchone()
+    curseur.execute(requeteSQL)
+    resultat = curseur.fetchone()
+
     # Le résultat est soit nul soit une liste de 5 éléments
 
     if resultat:
@@ -281,7 +306,10 @@ class Visiteur:
       # Chargement des visites associées
 
       requeteSQL = f"SELECT * from Visites WHERE id_visiteur = {id_visiteur} ;"
-      listeVisites = curseur.execute(requeteSQL).fetchall()
+      # listeVisites = curseur.execute(requeteSQL).fetchall()
+      curseur.execute(requeteSQL)
+      listeVisites = curseur.fetchall()
+      
       if listeVisites:
         for db_visite in listeVisites:
           id_visite = db_visite[0]

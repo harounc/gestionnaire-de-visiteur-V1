@@ -75,29 +75,28 @@ def menuEnregistrerVisite():
 # Définition du menu 2
 def menuTerminerVisite():
   global MENUACTIF
-  nom = (input("entrée le nomdu visiteur : "))
-  prenoms = (input("entrée les prenoms du visiteur : "))
-  result = classes.Visiteur.chercherVisiteur(nom, prenoms)
-  if result == None:
-    print("Ce visiteur n'existe pas !")
-  else:
-    visiteur, indexLigne = result
 
-    while True:
-      for visite in visiteur.mes_visites :
-        print(f" ID ({visite.id}) --> {visite.motif} à {visite.heure_entree} " )
-      ID_visite = int(input("\n\n\t Entrée l'ID de la visite : "))
-      trouver = False
-      for visite in visiteur.mes_visites :
-        if visite.id == ID_visite :
-          trouver = True
+  ids_visites: list[int] = []
+  visite_encours: list[classes.TypeVisite] = classes.Visite.listerVisitesEncours()
+  for visite in visite_encours:
+    ids_visites.append(visite.id)
+    print(f"{visite.id} {visite.visiteur.nom_complet} {visite.motif} {visite.heure_entree}")
+  
 
-      if trouver == False:
-        print("\n\n\t C'est visite n'existe pas !  \n\n")
-      else:
-        print("\n\n\t Visite terminées avec success ! \n\n")
-        classes.Visite.terminerVisite(ID_visite, indexLigne)
-        break
+  while True:
+    ID_visite = int(input("\n\n\t Entrée l'ID de la visite : "))
+    trouver: bool = ID_visite in ids_visites # si oui alors trouver egal TRUE
+    # for visite in visite_encours:
+    #  if visite.id == ID_visite :
+    #    trouver = True
+
+    if trouver == False:
+      print("\n\n\t C'est visite n'existe pas !  \n\n")
+    else:
+      print("\n\n\t Visite terminées avec success ! \n\n")
+      classes.Visite.terminerVisite(ID_visite)
+      break
+
 
   MENUACTIF = 0
 
@@ -117,7 +116,7 @@ def menuVisiteTerminees():
 
   visite_terminees: list[classes.TypeVisite] = classes.Visite.listerVisitesTerminees()
   for visite in visite_terminees:
-    print(f'{visite.visiteur.nom_complet} {visite.motif} {visite.id} {visite.heure_entree}')
+    print(f'{visite.visiteur.nom_complet} {visite.motif} {visite.id} {visite.heure_entree} {visite.heure_fin}')
 
   MENUACTIF = 0
 
